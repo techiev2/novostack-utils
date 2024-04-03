@@ -200,7 +200,8 @@ export default class Table {
     }
     const dbQuery = format(`update ${this.name} set ${updateKeys.join(', ').trim()} where ${filterKeys.join(' and ').trim()}`, [...updateValues, ...filterValues])
     try {
-      await this.#db.query(dbQuery)
+      const { changedRows } = await this.#db.query(dbQuery)
+      if (!changedRows) throw { message: 'No rows updated.', context: 'client' }
     } catch (error) {
       // TODO: Find a good way to surface this constraint condition.
       if (error.code === 'ER_CHECK_CONSTRAINT_VIOLATED') throw {
