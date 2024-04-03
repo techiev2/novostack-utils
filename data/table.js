@@ -19,7 +19,7 @@ function cleanup(row, schema) {
     Object.entries(row)
       .map(([key, value]) => {
         try { value = JSON.parse(value) } catch (err) {}
-        if (schema[key].type === 'JSON') value = value || {}
+        if (schema[key]?.type === 'JSON') value = value || {}
         const [main, key_] = key.split('___')
         if (!key_) return [key, value]
         nested[main] = nested[main] || {}
@@ -211,7 +211,7 @@ export default class Table {
       }
       throw error
     }
-    const newQuery = Object.fromEntries([...validFilter, ...validUpdates])
+    const newQuery = Object.fromEntries([...validFilter, ...validUpdates].filter((key) => !!schema[key]))
     return this.find({ query: newQuery })
   }
   // FIXME: There is a jump in counter. Identify the RC for a fix.
