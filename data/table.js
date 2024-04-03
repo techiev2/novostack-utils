@@ -235,7 +235,7 @@ export default class Table {
     try {
       ({ insertId: id } = await this.#db.query(dbQuery))
     } catch (error) {
-      const { message } = error
+      let { message } = error
       let constraint
       if (message.indexOf('CONSTRAINT ') !== -1) {
         constraint = message.split('CONSTRAINT "')[1]
