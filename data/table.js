@@ -253,7 +253,7 @@ export default class Table {
         const value = payload[key]
         throw { message: "Duplicate value received.", metadata: { key, value } }
       }
-      consolelog(error)
+      console.log(error)
       throw new Error(`Unable to create ${this.name}`)
     }
     return this.find({ query: { id } })
