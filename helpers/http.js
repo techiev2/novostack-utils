@@ -1,6 +1,7 @@
 import { request } from 'http'
 
 async function fetch({url, method = 'GET', headers = {}, data = {}}) {
+  Object.assign(headers, { 'x-tracer-id': globalThis.tracerID })
   const postData = JSON.stringify(data);
   const { hostname: host, port, pathname: path, search } = new URL(url)
   Object.assign(headers, { 'Content-Length': postData.length })
