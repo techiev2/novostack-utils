@@ -10,10 +10,10 @@
   "author": "Sriram Velamur",
   "license": "MIT",
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "mysql2": "^3.9.3",
-    "redis": "^4.6.13"
+    "cors": "2.8.5",
+    "express": "4.19.2",
+    "mysql2": "3.9.3",
+    "redis": "4.6.13"
   },
   "type": "module"
 }
