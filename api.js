@@ -1,11 +1,17 @@
+import { randomUUID } from 'crypto'
 import Express, { json, Router } from 'express'
 import cors from 'cors'
+
+function setupTracer(_, __, next) {
+  globalThis.tracerID = randomUUID()
+  next()
+}
 
 class API {
   #app
   constructor() {
     this.#app = Express()
-    this.#app.use(json({ strict: true })).use(cors({ origin: '*' })).disable('x-powered-by')
+    this.#app.use(json({ strict: true })).use(cors({ origin: '*' })).disable('x-powered-by').use(setupTracer)
   }
   async start(port, host, prechecks = []) {
     try {
