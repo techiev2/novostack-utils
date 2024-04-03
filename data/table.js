@@ -4,6 +4,7 @@ function getTypeMap(type) {
   type = type.split('(')[0]
   if (type.startsWith('int') || type.startsWith('float') || type.endsWith('int')) return Number
   if (type.startsWith('time') || type.endsWith('time')) return Date
+  if (type === 'json') return 'JSON'
   return String
 } 
 function convertInformationSchemaToSchema(row) {
@@ -12,12 +13,13 @@ function convertInformationSchemaToSchema(row) {
   const type = getTypeMap(DATA_TYPE)
   return [field, { maxLength, defaultValue, isPK, type }]
 }
-function cleanup(row) {
+function cleanup(row, schema) {
   let nested = {}
   row = Object.fromEntries(
     Object.entries(row)
       .map(([key, value]) => {
         try { value = JSON.parse(value) } catch (err) {}
+        if (schema[key].type === 'JSON') value = value || {}
         const [main, key_] = key.split('___')
         if (!key_) return [key, value]
         nested[main] = nested[main] || {}
@@ -42,7 +44,10 @@ export default class Table {
   get schemaJSON() {
     return new Promise(async (resolve) => {
       const schema = await this.schema
-      Object.entries(schema).map(([key, value]) => { try { schema[key].type = value?.type?.name } catch (err) {} })
+      Object.entries(schema).map(([key, value]) => {
+        if (value?.type === 'JSON') return
+        try { schema[key].type = value?.type?.name } catch (err) {}
+      })
       resolve(schema)
     })
   }
@@ -149,7 +154,7 @@ export default class Table {
       message: `No ${this.name} found`,
       context: 'data'
     }
-    return rows.map(cleanup)
+    return rows.map((row) => cleanup(row, schema))
   }
   async update({ query = {}, payload = {} }) {
     const schema = await this.schema
@@ -186,6 +191,7 @@ export default class Table {
     validUpdates.map(([key, value]) => {
       updateKeys.push(`${key} = ?`)
       try { value = JSON.parse(value) } catch { }
+      if (schema[key].type === 'JSON') value = JSON.stringify(value)
       updateValues.push(value)
     })
     if (!updateKeys.length) throw {
