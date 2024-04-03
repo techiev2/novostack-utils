@@ -13,6 +13,7 @@ async function migrateFile(migration, database) {
   let lineCount = lines.length
   let successes = 0
   connection.beginTransaction()
+  console.log(`Migrating ${migration}`)
   try {
     for (line of lines) {
       await connection.query(line)
@@ -45,8 +46,11 @@ let configs; try { configs = JSON.parse(readFile(realPath(configsPath))) } catch
     migrations = migrations
       .filter((file) => file.endsWith('.sql') && !isNaN(file.split('.')[0]))
       .sort((a, b) => +(a.split('.')[0]) - +(b.split('.')[0]))
-    migrationFile = migrations[migrations.length - 1]
+    for (const migration of migrations) {
+      await migrateFile(`${migrationsDir}/${migration}`, database)
+    }
+  } else {
+    await migrateFile(`${migrationsDir}/${migrationFile}`, database)
   }
-  await migrateFile(`${migrationsDir}/${migrationFile}`, database)
   process.exit(0)
 })()
