@@ -212,8 +212,9 @@ export default class Table {
       }
       throw error
     }
-    const newQuery = Object.fromEntries([...validFilter, ...validUpdates].filter((key) => !!schema[key]))
-    return this.find({ query: newQuery })
+    // FIXME: The query post update needs to accommodate updation based on non-PK fields in the query - Ref Issue #1
+    // const newQuery = Object.fromEntries([...validFilter, ...validUpdates].filter((key) => !!schema[key]))
+    return this.find({ query })
   }
   // FIXME: There is a jump in counter. Identify the RC for a fix.
   async insert(payload = {}) {
