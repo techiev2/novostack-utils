@@ -15,7 +15,7 @@ async function fetch({url, method = 'GET', headers = {}, data = {}}) {
       res.on('end', () => {
         try { response = JSON.parse(response) } catch (err) { }
         const timing = new Date().getTime() - start
-        console.log(`[INFO] [HTTP] ${method.toUpperCase()} request to ${url} compelted in ${timing}ms.`)
+        console.log(`[INFO] [HTTP] ${method.toUpperCase()} request to ${url} completed in ${timing}ms.`)
         resolve(response)
       })
     });
