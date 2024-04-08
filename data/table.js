@@ -260,4 +260,7 @@ export default class Table {
     }
     return this.find({ query: { id } })
   }
+  async raw(query, args) {
+    return this.#db.query(format(query, args))
+  }
 }
