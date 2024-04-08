@@ -1,6 +1,7 @@
 import { createPool } from 'mysql2'
 import { createClient } from 'redis'
 import { promisify } from 'util'
+import logger from '../helpers/logging.js'
 
 const databases = {
   mysql: {},
@@ -15,10 +16,10 @@ async function connectMySQLDatabases(configs = {}) {
         client.query = promisify(client.query).bind(client)
         client.getConnection = promisify(client.getConnection).bind(client)
         await client.query('select 1')
-        console.log(`[INFO] [DB] Connected to MySQL database - ${name}`)
+        logger.log('DB', `Connected to MySQL database - ${name}`)
         databases.mysql[name] = client
       } catch (error) {
-        console.log(`[ERROR] [DB] Unable to connect to MySQL database - ${name}`)
+        logger.error('DB', `Unable to connect to MySQL database - ${name}`)
         process.exit(1)
       }
     })
@@ -32,10 +33,10 @@ async function connectRedisDatabases(configs = {}) {
         const client = createClient(config)
         await client.connect()
         await client.ping()
-        console.log(`[INFO] [DB] Connected to Redis database - ${name}`)
+        logger.log(`DB`, `Connected to Redis database - ${name}`)
         databases.redis[name] = client
       } catch (error) {
-        console.log(`[ERROR] [DB] Unable to connect to Redis database - ${name} || ${error}`)
+        logger.error(`DB`, `Unable to connect to Redis database - ${name} || ${error}`)
         process.exit(1)
       }
     })

@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto'
 import Express, { json, Router } from 'express'
 import cors from 'cors'
+import logger from './helpers/logging.js'
 
 function setupTracer(_, __, next) {
   globalThis.tracerID = randomUUID()
@@ -20,7 +21,7 @@ class API {
       process.exit(1)
     }
     this.#app.listen(port, host, () => {
-      console.log(`[INFO] [API] Listening at http://${host}:${port}`)
+      logger.log(`API`, `Listening at http://${host}:${port}`)
     })
   }
   register(prefix, router) {

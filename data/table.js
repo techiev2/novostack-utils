@@ -1,4 +1,5 @@
 import { format } from "mysql2"
+import logger from "../helpers/logging.js"
 
 function getTypeMap(type) {
   type = type.split('(')[0]
@@ -255,7 +256,7 @@ export default class Table {
         const value = payload[key]
         throw { message: "Duplicate value received.", metadata: { key, value } }
       }
-      console.log(error)
+      logger.error(`[DB-TABLE]`, error)
       throw new Error(`Unable to create ${this.name}`)
     }
     return this.find({ query: { id } })
