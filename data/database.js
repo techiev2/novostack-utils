@@ -28,9 +28,9 @@ async function connectMySQLDatabases(configs = {}) {
 
 async function connectRedisDatabases(configs = {}) {
   await Promise.all(Object.entries(configs)
-    .map(async ([name, config]) => {
+    .map(async ([name, { url }]) => {
       try {
-        const client = createClient(config)
+        const client = createClient(url)
         await client.connect()
         await client.ping()
         logger.log(`DB`, `Connected to Redis database - ${name}`)
