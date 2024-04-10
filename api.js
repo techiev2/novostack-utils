@@ -1,4 +1,6 @@
 import { randomUUID } from 'crypto'
+import { spawn } from 'child_process'
+
 import Express, { json, Router } from 'express'
 import cors from 'cors'
 import logger from './helpers/logging.js'
@@ -29,6 +31,17 @@ class API {
     return this
   }
 }
+
+process.on('SIGUSR2', onExit)
+function onExit() {
+  spawn(process.argv.shift(), process.argv, {
+    cwd: process.cwd(),
+    detached : true,
+    stdio: "inherit"
+  });
+  process.exit();
+}
+
 const api = new API()
 export default api
 export { Router }
