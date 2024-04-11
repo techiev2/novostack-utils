@@ -1,7 +1,7 @@
 import { request } from 'http';
 import logger from './logging.js';
 
-const DEFAULT_TIMEOUT_MILLISECONDS = 100
+const DEFAULT_TIMEOUT_MILLISECONDS = 30000
 
 async function fetch({url, method = 'GET', headers = {}, data = {}, timeout = DEFAULT_TIMEOUT_MILLISECONDS}) {
   timeout = isNaN(+timeout) || +timeout > DEFAULT_TIMEOUT_MILLISECONDS ? DEFAULT_TIMEOUT_MILLISECONDS : +timeout
