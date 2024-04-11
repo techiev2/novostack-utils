@@ -1,14 +1,21 @@
-import { request } from 'http'
+import { request } from 'http';
 import logger from './logging.js';
 
-async function fetch({url, method = 'GET', headers = {}, data = {}}) {
+const DEFAULT_TIMEOUT_MILLISECONDS = 100
+
+async function fetch({url, method = 'GET', headers = {}, data = {}, timeout = DEFAULT_TIMEOUT_MILLISECONDS}) {
+  timeout = isNaN(+timeout) || +timeout > DEFAULT_TIMEOUT_MILLISECONDS ? DEFAULT_TIMEOUT_MILLISECONDS : +timeout
   let start = new Date().getTime()
   Object.assign(headers, { 'x-tracer-id': globalThis.tracerID, 'User-Agent': 'Novostack v1.0.0' })
   const postData = JSON.stringify(data);
   const { hostname: host, port, pathname: path, search } = new URL(url)
   Object.assign(headers, { 'Content-Length': postData.length })
   return new Promise((resolve, reject) => {
-    const req = request({ host, port, path: `${path}${search}`, headers, method }, (res) => {
+    let watcher = setTimeout(() => {
+      clearTimeout(watcher)
+      return reject({ message: 'TIMED_OUT', url, method })
+    }, timeout)
+    const req = request({ host, port, path: `${path}${search}`, headers, method, timeout }, (res) => {
       let response = ''
       res.on('data', (chunk) => {
         response += chunk
