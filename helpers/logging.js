@@ -18,15 +18,21 @@ class Logger {
     this.outLog = createWriteStream(`${this.#rootPath}/logs/out.log`)
     this.errorLog = createWriteStream(`${this.#rootPath}/logs/error.log`)
   }
+  get now() {
+    return new Date().toISOString()
+  }
+  get correlation() {
+    return globalThis['x-correlation-id'] || 'NO_CORRELATION_REF'
+  }
   log(label, data) {
     if (label && !data) { data = label, label = '[UNKNOWN]'}
     if (typeof data === 'object') { data = JSON.stringify(data) }
-    this.outLog.write(`[${this.name}] [LOG] ${label} - ${data}\n`)
+    this.outLog.write(`[${this.now}] [${this.correlation}] [${this.name}] [LOG] ${label} - ${data}\n`)
   }
   error(label, data) {
     if (label && !data) { data = label, label = '[UNKNOWN]'}
     if (typeof data === 'object') { data = JSON.stringify(data) }
-    this.errorLog.write(`[${this.name}] [ERROR] ${label} - ${data}\n`)
+    this.errorLog.write(`[${this.now}] [${this.correlation}] [${this.name}] [ERROR] ${label} - ${data}\n`)
   }
 }
 
