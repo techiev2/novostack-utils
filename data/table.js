@@ -147,7 +147,9 @@ export default class Table {
     }))
     const joins = joinList.join(' ').trim()
     const filter = validKeys.length ? ` where ${validKeys.join(' and ').trim()} ` : ''
-    const sort = pk ? ` order by ${this.name}.${pk} desc ` : ''
+    let $pk = Object.entries(schema).filter(([_, value]) => !!value.pk)[0]
+    $pk = $pk ? $pk[0] : null
+    const sort = pk ? ` order by ${this.name}.${pk} desc ` : $pk ? ` order by ${this.name}.${$pk} desc ` : ''
     fields = fields.length ? fields : ['*']
     const dbQuery = format(`select ${fields.join(', ').trim()} from ${this.name} ${joins} ${filter} ${sort} limit ${limit}`.replace(/\s{2,}/gmi, ' '), validValues)
     const rows = await this.#db.query(dbQuery)
