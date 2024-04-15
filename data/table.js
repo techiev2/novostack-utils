@@ -101,17 +101,28 @@ export default class Table {
       resolve(this.#schema)
     })
   }
-  async find({ query = {}, projection = [], limit = 10 } = {}) {
+  async find({ query, projection, limit } = {}) {
     limit = isNaN(+limit) || +limit < 1 || +limit > 10 ? 10 : +limit
+    query = query || {}
+    projection = projection || []
     const schema = await this.schema
     const { pk } = schema
     delete schema.pk
     delete schema.constraints
     let fieldsFromSchema = Object.keys(schema)
+    const schemaJSON = await this.schemaJSON
     projection = projection.filter((field) => {
       if (field.indexOf('(') !== -1 || field.indexOf(' as ') !== -1) return true
       return fieldsFromSchema.indexOf(field) !== -1
     })
+    let invalidSearch = []
+      Object.keys(query)
+        .map((field) => {
+          if (!schema[field]) invalidSearch.push(field)
+        })
+    if (invalidSearch.length) {
+      throw { message: 'Invalid search field', metadata: { fields: invalidSearch, schema: schemaJSON }}
+    }
     let fields = projection.length ? projection : fieldsFromSchema
     fields = fields
       .map((key) =>{
