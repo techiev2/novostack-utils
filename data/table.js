@@ -126,7 +126,7 @@ export default class Table {
     let fields = projection.length ? projection : fieldsFromSchema
     fields = fields
       .map((key) =>{
-        if (schema[key]?.type === Date) {
+        if (schema[key]?.type === 'Date') {
           return `UNIX_TIMESTAMP(${this.name}.${key}) as ${key}`
         }
         if (key.indexOf('(') !== -1 || key.indexOf(' as ') !== -1) {
@@ -150,7 +150,8 @@ export default class Table {
     const joinList = await Promise.all(Object.entries(schema).filter(([_, structure]) => !!structure.reference).map(([key, { reference }]) => [key, reference]).map(async ([key, reference]) => {
       const $schema = await this.#getColumns(reference.db, reference.table)
       const keys = Object.keys($schema).filter((key) => !SKIP_ON_JOIN_FIELDS.has(key)).map((key_) => {
-        if ($schema[key_].type !== Date) return `${reference.db}.${reference.table}.${key_} as ${key}___${key_}`
+        // FIXME: The fields in referenced table columns are not coming through.
+        if ($schema[key_].type !== 'Date') return `${reference.db}.${reference.table}.${key_} as ${key}___${key_}`
         return `UNIX_TIMESTAMP(${reference.db}.${reference.table}.${key_}) as ${key}___${key_}`
       })
       if (!projection.length) fields.push(...keys)
