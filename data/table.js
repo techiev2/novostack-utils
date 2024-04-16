@@ -78,7 +78,6 @@ export default class Table {
     return { references, constraints }
   }
   get schema() {
-    if (this.#schema) return this.#schema
     return new Promise(async (resolve) => {
       const [ fields, { references, constraints } ] = await Promise.all([
         this.#getColumns(this.#dbName, this.name), this.#getReferences()
