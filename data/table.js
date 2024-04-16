@@ -11,8 +11,8 @@ function getTypeMap(type) {
 function convertInformationSchemaToSchema(row) {
   const { COLUMN_NAME: field, DATA_TYPE, COLUMN_KEY: key, CHARACTER_MAXIMUM_LENGTH: maxLength, COLUMN_DEFAULT: defaultValue } = row
   const isPK = key === 'PRI'
-  const type = getTypeMap(DATA_TYPE)
-  return [field, { maxLength, defaultValue, isPK, type }]
+  const type_ = getTypeMap(DATA_TYPE)
+  return [field, { maxLength, defaultValue, isPK, type: type_ === 'JSON' ? 'JSON' : type_.name }]
 }
 function cleanup(row, schema) {
   let nested = {}
@@ -59,7 +59,8 @@ export default class Table {
       `select * from information_schema.columns where table_schema = ? and table_name = ?`,
       [dbName, tableName]
     )
-    return Object.fromEntries((await this.#db.query(query)).map(convertInformationSchemaToSchema))
+    const columns = await this.#db.query(query)
+    return Object.fromEntries(columns.map(convertInformationSchemaToSchema))
   }
   async #getReferences() {
     const refQuery = format(`SELECT * FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS rc where rc.TABLE_NAME = ?`, [this.name])
@@ -77,8 +78,8 @@ export default class Table {
     return { references, constraints }
   }
   get schema() {
+    if (this.#schema) return this.#schema
     return new Promise(async (resolve) => {
-      if (this.#schema) return resolve(this.#schema)
       const [ fields, { references, constraints } ] = await Promise.all([
         this.#getColumns(this.#dbName, this.name), this.#getReferences()
       ])
