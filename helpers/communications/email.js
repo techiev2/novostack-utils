@@ -1,4 +1,5 @@
 import { createTransport } from 'nodemailer'
+import logger from '../logging.js'
 
 let emailer
 
@@ -9,7 +10,7 @@ export const communicationChannels = {
         if (error) {
           console.error("Error sending email: ", error);
         } else {
-          console.log("Email sent: ", info.response);
+          logger.log("Email sent: ", info);
         }
       });
     }
