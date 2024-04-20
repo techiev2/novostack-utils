@@ -27,7 +27,9 @@ async function fetch({url, method = 'GET', headers = {}, data = {}, timeout = DE
         resolve(response)
       })
     });
-    req.on('error', reject);
+    req.on('error', ({ message }) => {
+      return reject({ message: 'DOWNSTREAM_ERROR', url, method, metadata: { message } })
+    });
     req.write(postData)
     req.end()
   })
