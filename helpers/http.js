@@ -6,7 +6,7 @@ const DEFAULT_TIMEOUT_MILLISECONDS = 30000
 async function fetch({url, method = 'GET', headers = {}, data = {}, timeout = DEFAULT_TIMEOUT_MILLISECONDS}) {
   timeout = isNaN(+timeout) || +timeout > DEFAULT_TIMEOUT_MILLISECONDS ? DEFAULT_TIMEOUT_MILLISECONDS : +timeout
   let start = new Date().getTime()
-  Object.assign(headers, { 'x-tracer-id': globalThis.tracerID, 'User-Agent': 'Novostack v1.0.0' })
+  Object.assign(headers, { 'x-tracer-id': globalThis.tracerID || '', 'User-Agent': 'Novostack v1.0.0', 'Content-Type': 'application/json' })
   const postData = JSON.stringify(data);
   const { hostname: host, port, pathname: path, search } = new URL(url)
   Object.assign(headers, { 'Content-Length': postData.length })
