@@ -11,7 +11,7 @@ async function sendToHTTP(action) {
     const response = await fetch(action)
     logger.log(`scheduler.http`, response)
   } catch (error) {
-    logger.error(`scheduler.http`, error)
+    logger.error(`scheduler.http.error`, { action, error })
   }
 }
 
