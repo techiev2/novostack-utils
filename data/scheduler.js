@@ -35,6 +35,7 @@ export const scheduler = {
       await redisClient.EXPIRE(key, expiry)
     } catch (error) {
       logger.error(`scheduler.schedule`, error)
+      throw error
     }
   }
 }
