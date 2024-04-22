@@ -1,7 +1,3 @@
-// CONFIG SET notify-keyspace-events KEAx
-// psubscribe '__key*__:*'zzzzzxxxxcc
-// __keyevent@2__:expired
-
 import { randomUUID } from 'crypto'
 
 import logger from '../helpers/logging.js'
