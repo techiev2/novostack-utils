@@ -26,6 +26,8 @@ async function sendToQueue(action) {
 export const scheduler = {
   async schedule({ scheduleAt, payload }) {
     try {
+      if (isNaN(+scheduleAt) || !+scheduleAt) throw { message: `No valid schedule timestamp provided.` }
+      if (+scheduleAt < new Date().getTime()) throw { message: `Cannot schedule an event in the past. `}
       const id = randomUUID()
       const key = `${id}____${JSON.stringify(payload)}`
       const expiry = Math.ceil((scheduleAt - new Date().getTime()) / 1000)
