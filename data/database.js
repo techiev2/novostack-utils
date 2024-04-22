@@ -12,6 +12,7 @@ async function connectMySQLDatabases(configs = {}) {
   await Promise.all(Object.entries(configs)
     .map(async ([name, config]) => {
       try {
+        if (databases.mysql[name]) return
         const client = createPool(config)
         client.query = promisify(client.query).bind(client)
         client.getConnection = promisify(client.getConnection).bind(client)
@@ -30,6 +31,7 @@ async function connectRedisDatabases(configs = {}) {
   await Promise.all(Object.entries(configs)
     .map(async ([name, { url }]) => {
       try {
+        if (databases.redis[name]) return
         const client = createClient(url)
         await client.connect()
         await client.ping()
