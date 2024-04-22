@@ -23,7 +23,6 @@ async function sendToQueue(action) {
   logger.log(`scheduler.queue`, action)
 }
 
-
 export const scheduler = {
   async schedule({ scheduleAt, payload }) {
     try {
@@ -32,18 +31,6 @@ export const scheduler = {
       const expiry = Math.ceil((scheduleAt - new Date().getTime()) / 1000)
       await redisClient.set(key, 1)
       await redisClient.EXPIRE(key, expiry)
-      watcher.pSubscribe('*', async (event, key) => {
-        if (event !== 'expired') return
-        let action = {}
-        try {
-          action = JSON.parse(key.split('____')[1])
-        } catch (_) {
-          //
-        }
-        if (action.url) return sendToHTTP(action)
-        if (action.queue) return sendToQueue(action)
-        return logger.error(`scheduler.invalid_action`, action)
-      })
     } catch (error) {
       logger.error(`scheduler.schedule`, error)
     }
@@ -56,5 +43,17 @@ export async function createScheduler(redis) {
   watcher = redisClient.duplicate()
   watcher.connect()
   await watcher.configSet('notify-keyspace-events', 'KEAx');
+  watcher.pSubscribe('*', async (event, key) => {
+    if (event !== 'expired') return
+    let action = {}
+    try {
+      action = JSON.parse(key.split('____')[1])
+    } catch (_) {
+      //
+    }
+    if (action.url) return sendToHTTP(action)
+    if (action.queue) return sendToQueue(action)
+    return logger.error(`scheduler.invalid_action`, action)
+  })
   return scheduler
 }
