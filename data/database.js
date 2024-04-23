@@ -20,7 +20,7 @@ async function connectMySQLDatabases(configs = {}) {
         logger.log('DB', `Connected to MySQL database - ${name}`)
         databases.mysql[name] = client
       } catch (error) {
-        logger.error('DB', `Unable to connect to MySQL database - ${name}`)
+        logger.error('DB', `Unable to connect to MySQL database - ${name} - ${error}`)
         process.exit(1)
       }
     })
