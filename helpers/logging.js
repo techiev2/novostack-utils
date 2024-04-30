@@ -15,7 +15,7 @@ class Logger {
   constructor() {
     this.#app = appName
     this.#rootPath = dirname(process.argv[1])
-    mkdir(`${this.#rootPath}/logs`, { recursive: true })
+    if (!this.#noLogger) mkdir(`${this.#rootPath}/logs`, { recursive: true })
     // Cloud fn specific temporary fix. This is to stream into console log in cloud fns that don't allow file creation.
     this.#noLogger = process.env === 'NO_LOGGER'
     this.outLog = this.#noLogger ? null : createWriteStream(`${this.#rootPath}/logs/out.log`)
