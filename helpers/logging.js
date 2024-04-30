@@ -6,6 +6,7 @@ const appName = global['appName'] || globalThis['appName'] || 'novostack-utils'
 class Logger {
   #app
   #rootPath
+  #noLogger
   outLog
   errorLog
   get name() {
@@ -15,8 +16,10 @@ class Logger {
     this.#app = appName
     this.#rootPath = dirname(process.argv[1])
     mkdir(`${this.#rootPath}/logs`, { recursive: true })
-    this.outLog = createWriteStream(`${this.#rootPath}/logs/out.log`)
-    this.errorLog = createWriteStream(`${this.#rootPath}/logs/error.log`)
+    // Cloud fn specific temporary fix. This is to stream into console log in cloud fns that don't allow file creation.
+    this.#noLogger = process.env === 'NO_LOGGER'
+    this.outLog = this.#noLogger ? null : createWriteStream(`${this.#rootPath}/logs/out.log`)
+    this.errorLog = this.#noLogger ? null : createWriteStream(`${this.#rootPath}/logs/error.log`)
   }
   get now() {
     return new Date().toISOString()
@@ -27,12 +30,16 @@ class Logger {
   log(label, data) {
     if (label && !data) { data = label, label = '[UNKNOWN]'}
     if (typeof data === 'object') { data = JSON.stringify(data) }
-    this.outLog.write(`[${this.now}] [${this.correlation}] [${this.name}] [LOG] ${label} - ${data}\n`)
+    const message = `[${this.now}] [${this.correlation}] [${this.name}] [LOG] ${label} - ${data}\n`
+    if (this.#noLogger) return console.log(message)
+    this.outLog.write(message)
   }
   error(label, data) {
     if (label && !data) { data = label, label = '[UNKNOWN]'}
     if (typeof data === 'object') { data = JSON.stringify(data) }
-    this.errorLog.write(`[${this.now}] [${this.correlation}] [${this.name}] [ERROR] ${label} - ${data}\n`)
+    const message = `[${this.now}] [${this.correlation}] [${this.name}] [ERROR] ${label} - ${data}\n`
+    if (this.#noLogger) return console.log(message)
+    this.errorLog.write(message)
   }
 }
 
