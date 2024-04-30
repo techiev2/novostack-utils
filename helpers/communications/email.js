@@ -5,12 +5,21 @@ let emailer
 
 export const communicationChannels = {
   email: {
-    send(mailOptions) {
-      emailer.sendMail(mailOptions, (error, info = {}) => {
-        const { accepted, messageId } = info
-        if (!accepted?.length) return logger.error(`sendMail`, `No recipients could be mailed.`)
-        if (error) return logger.error(`sendMail`, error)
-        logger.log(`sendMail`, {accepted, messageId })
+    async send(mailOptions) {
+      return new Promise((resolve, reject) => {
+        emailer.sendMail(mailOptions, (error, info = {}) => {
+          const { accepted, messageId } = info
+          if (!accepted?.length) {
+            logger.error(`sendMail`, `No recipients could be mailed.`)
+            return reject({ message: `No recipients could be mailed.` })
+          }
+          if (error) {
+            logger.error(`sendMail`, error)
+            return reject(error)
+          }
+          logger.log(`sendMail`, {accepted, messageId })
+          return resolve({accepted, messageId })
+        })
       })
     }
   }
