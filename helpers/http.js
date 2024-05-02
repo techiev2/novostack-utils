@@ -23,6 +23,7 @@ async function fetch({url, method = 'GET', headers = {}, data = {}, timeout = DE
       res.on('end', () => {
         try { response = JSON.parse(response) } catch (err) { }
         const timing = new Date().getTime() - start
+        if (res.status > 300) return reject(response)
         logger.log(`HTTP`, `${method.toUpperCase()} request to ${url} completed in ${timing}ms.`)
         resolve(response)
       })
