@@ -6,12 +6,19 @@ import fetch from '../helpers/http.js'
 let redisClient
 let watcher
 
-async function sendToHTTP(action) {
+let RETRY_TIMEOUT_MINUTES = 5
+
+async function sendToHTTP(action, entity) {
   try {
     const response = await fetch(action)
     logger.log(`scheduler.http`, response)
   } catch (error) {
+    // TODO: Add to a queue for further processing.
+    let now = new Date()
+    now.setMinutes(now.getMinutes(RETRY_TIMEOUT_MINUTES))
     logger.error(`scheduler.http.error`, { action, error })
+    logger.error(`scheduler.http.retry`, `Retrying for ${now.toISOString()}`)
+    scheduler.schedule({scheduleAt: now, namespace: entity, payload: action })
   }
 }
 
@@ -60,12 +67,14 @@ export async function createScheduler(redis) {
   watcher.pSubscribe('*', async (event, key) => {
     if (event !== 'expired') return
     let action = {}
+    let entity
     try {
-      action = JSON.parse(key.split('____')[2])
+      [_, entity, action] = key.split('____')
+      action = JSON.parse(action)
     } catch (_) {
       //
     }
-    if (action.url) return sendToHTTP(action)
+    if (action.url) return sendToHTTP(action, entity)
     if (action.queue) return sendToQueue(action)
     return logger.error(`scheduler.invalid_action`, action)
   })
