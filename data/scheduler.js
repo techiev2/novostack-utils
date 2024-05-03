@@ -66,13 +66,14 @@ export async function createScheduler(redis) {
   await watcher.configSet('notify-keyspace-events', 'KEAx');
   watcher.pSubscribe('*', async (event, key) => {
     if (event !== 'expired') return
-    let action = {}
+    let action
     let entity
     try {
-      [_, entity, action] = key.split('____')
-      action = JSON.parse(action)
-    } catch (_) {
-      //
+      const splits = key.split('____')
+      action = JSON.parse(splits[2])
+      entity = splits[0]
+    } catch (actionParseError) {
+      logger.error(`scheduler.action.parseError`, { action, actionParseError })
     }
     if (action.url) return sendToHTTP(action, entity)
     if (action.queue) return sendToQueue(action)
