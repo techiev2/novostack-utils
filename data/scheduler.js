@@ -18,7 +18,7 @@ async function sendToHTTP(action, entity) {
     now.setMinutes(now.getMinutes(RETRY_TIMEOUT_MINUTES))
     logger.error(`scheduler.http.error`, { action, error })
     logger.error(`scheduler.http.retry`, `Retrying for ${now.toISOString()}`)
-    scheduler.schedule({scheduleAt: now, namespace: entity, payload: action })
+    await scheduler.schedule({scheduleAt: now, namespace: entity, payload: action })
   }
 }
 
