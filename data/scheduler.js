@@ -6,19 +6,22 @@ import fetch from '../helpers/http.js'
 let redisClient
 let watcher
 
-let RETRY_TIMEOUT_MINUTES = 5
+let DEFAULT_RETRY_TIMEOUT_MINUTES = 5
 
 async function sendToHTTP(action, entity) {
   try {
+    let { retryIn }  = action
+    delete action.retryIn
+    retryIn =  isNaN(+retryIn) || !+retryIn ? DEFAULT_RETRY_TIMEOUT_MINUTES : +retryIn
     const response = await fetch(action)
     logger.log(`scheduler.http`, response)
   } catch (error) {
     // TODO: Add to a queue for further processing.
     let now = new Date()
-    now.setMinutes(now.getMinutes(RETRY_TIMEOUT_MINUTES))
+    now.setMinutes(now.getMinutes(retryIn))
     logger.error(`scheduler.http.error`, { action, error })
     logger.error(`scheduler.http.retry`, `Retrying for ${now.toISOString()}`)
-    await scheduler.schedule({scheduleAt: now, namespace: entity, payload: action })
+    await scheduler.schedule({scheduleAt: now, namespace: entity, payload: { ...action, retryIn } })
   }
 }
 
