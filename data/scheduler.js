@@ -9,10 +9,10 @@ let watcher
 let DEFAULT_RETRY_TIMEOUT_MINUTES = 5
 
 async function sendToHTTP(action, entity) {
+  let { retryIn }  = action
+  delete action.retryIn
+  retryIn =  isNaN(+retryIn) || !+retryIn ? DEFAULT_RETRY_TIMEOUT_MINUTES : +retryIn
   try {
-    let { retryIn }  = action
-    delete action.retryIn
-    retryIn =  isNaN(+retryIn) || !+retryIn ? DEFAULT_RETRY_TIMEOUT_MINUTES : +retryIn
     const response = await fetch(action)
     logger.log(`scheduler.http`, response)
   } catch (error) {
