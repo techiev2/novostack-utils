@@ -279,3 +279,6 @@ export default class Table {
     return this.#db.query(format(query, args))
   }
 }
+
+export function getRepositories(domains) {  return Object.fromEntries(domains.map(([domain, cls]) => [domain, new cls()]))
+}
