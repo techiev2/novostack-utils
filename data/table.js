@@ -138,8 +138,7 @@ export default class Table {
     const validValues = []
     Object.entries(query || {})
       .map(([key, value]) => {
-        // FIXME: Hacky implementation.
-        if (fields.join(',').indexOf(`${this.name}.${key}`) === -1) return false
+        if (fieldsFromSchema.join(',').indexOf(key) === -1) return false
         return [`${this.name}.${key}`, value]
       }).filter((row) => !!row)
       .map(([key, value]) => {
