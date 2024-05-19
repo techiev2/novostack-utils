@@ -5,8 +5,10 @@ import Express, { json, Router } from 'express'
 import cors from 'cors'
 import logger from './helpers/logging.js'
 
-function setupTracer(_, __, next) {
-  globalThis.tracerID = randomUUID()
+function setupTracer(req, res, next) {
+  let id = req.headers['x-tracer-id'] || randomUUID()
+  globalThis.tracerID = id
+  res.setHeader('x-tracer-id', id)
   next()
 }
 
